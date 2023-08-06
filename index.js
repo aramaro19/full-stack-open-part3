@@ -10,18 +10,9 @@ app.use(express.json())
 app.use(morgan(':method :status :res[content-length] - :response-time ms :data'))
 app.use(cors())
 
-let persons = []
 
 app.get('/', (request, response) => {
 	response.send('<h1>Phonebook</h1>')
-})
-
-app.get('/info', (request, response) => {
-	date = new Date()
-	response.send(
-		`Phonebook has info for ${persons.length} people
-        <p>${date}</p>`
-	)
 })
 
 app.get('/api/persons/', (request, response) => {
@@ -48,19 +39,23 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons/', (request, response) => {
-	const person = request.body
-	if (!person.name || !person.number) {
+	const body = request.body
+	if (!body.name || !body.number) {
 		return response.status(400).json({
 			error: 'content missing',
 		})
-	} else if (persons.find(p => p.name === person.name)) {
-		return response.status(400).json({
-			error: 'name must be unique',
+	} 
+	
+	const person = new Person({
+		name: body.name,
+		number: body.number,
+	})
+
+	person	
+		.save()
+		.then(savedPerson => {
+			response.json(savedPerson)
 		})
-	}
-	person.id = Math.floor(Math.random() * 10000)
-	persons = persons.concat(person)
-	response.json(person)
 })
 
 const unknownEndpoint = (request, response) => {
