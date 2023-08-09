@@ -14,6 +14,17 @@ app.get('/', (request, response) => {
 	response.send('<h1>Phonebook</h1>');
 });
 
+app.get('/info/', (request, response) => {
+	Person.find({})
+		.then(people => {
+			const amountOfPeople = people.length
+			const date = new Date()
+			response.send(`<p>PhoneBook has info for ${amountOfPeople} people </p>
+	<p>${date}</p>`)
+		})
+	
+})
+
 app.get('/api/persons/', (request, response) => {
 	Person.find({}).then(people => {
 		response.json(people);
