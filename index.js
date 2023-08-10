@@ -7,7 +7,8 @@ morgan.token('data', (request, response) => JSON.stringify(request.body));
 const Person = require('./models/person');
 
 app.use(express.json());
-app.use(morgan(':method :status :res[content-length] - :response-time ms :data'));
+app.use(express.static('build'))
+app.use(morgan(':method :status - :response-time ms :data'));
 app.use(cors());
 
 app.get('/', (request, response) => {
@@ -82,7 +83,10 @@ app.put('/api/persons/:id', (request, response, next) => {
 		.then(updatedNote => {
 			response.json(updatedNote);
 		})
-		.catch(error => next(error));
+		.catch(error => {
+			console.log('wrong', error) 
+			return response.status(400).send(error)
+		});
 });
 
 const errorHandler = (error, request, response, next) => {
@@ -93,6 +97,10 @@ const errorHandler = (error, request, response, next) => {
 	}
 	if (error.name === 'ValidationError') {
 		return response.status(400).send(error);
+	}
+	if (error.name === 'Validation Failed') {
+		console.log('this error') 
+		return response.status(400).send(error)
 	}
 
 	next(error);
