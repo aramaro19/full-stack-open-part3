@@ -15,15 +15,13 @@ app.get('/', (request, response) => {
 });
 
 app.get('/info/', (request, response) => {
-	Person.find({})
-		.then(people => {
-			const amountOfPeople = people.length
-			const date = new Date()
-			response.send(`<p>PhoneBook has info for ${amountOfPeople} people </p>
-	<p>${date}</p>`)
-		})
-	
-})
+	Person.find({}).then(people => {
+		const amountOfPeople = people.length;
+		const date = new Date();
+		response.send(`<p>PhoneBook has info for ${amountOfPeople} people </p>
+	<p>${date}</p>`);
+	});
+});
 
 app.get('/api/persons/', (request, response) => {
 	Person.find({}).then(people => {
@@ -55,7 +53,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 		.catch(error => next(error));
 });
 
-app.post('/api/persons/', (request, response) => {
+app.post('/api/persons/', (request, response, next) => {
 	const body = request.body;
 	if (!body.name || !body.number) {
 		return response.status(400).json({
@@ -68,9 +66,10 @@ app.post('/api/persons/', (request, response) => {
 		number: body.number,
 	});
 
-	person.save().then(savedPerson => {
-		response.json(savedPerson);
-	});
+	person
+		.save()
+		.then(savedPerson => response.json(savedPerson))
+		.catch(error => next(error));
 });
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -91,6 +90,9 @@ const errorHandler = (error, request, response, next) => {
 
 	if (error.name === 'CastError') {
 		return response.status(400).send({ error: 'malformatted id' });
+	}
+	if (error.name === 'ValidationError') {
+		return response.status(400).send({error: 'Properties must be unique'})
 	}
 
 	next(error);
