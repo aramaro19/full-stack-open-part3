@@ -15,8 +15,8 @@ mongoose
 	});
 
 const personSchema = new mongoose.Schema({
-	name: { type: String, unique: true, required: true },
-	number: { type: String, unique: true, required: true },
+	name: { type: String, unique: true, required: true, minlength: 3 },
+	number: { type: String, unique: true, required: true, minlength: 8 },
 });
 personSchema.plugin(uniqueValidator);
 
